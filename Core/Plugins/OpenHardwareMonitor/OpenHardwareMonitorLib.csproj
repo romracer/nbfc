@@ -111,6 +111,7 @@
     <Compile Include="Hardware\Nvidia\NVAPI.cs" />
     <Compile Include="Hardware\Nvidia\NvidiaGPU.cs" />
     <Compile Include="Hardware\Nvidia\NvidiaGroup.cs" />
+    <Compile Include="Hardware\Nvidia\NVML.cs" />
     <Compile Include="Hardware\Parameter.cs" />
     <Compile Include="Hardware\Sensor.cs" />
     <Compile Include="Hardware\SensorVisitor.cs" />
@@ -126,7 +127,7 @@
     <Compile Include="Properties\AssemblyLibInfo.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Hardware\ThreadAffinity.cs" />
-    <Compile Include="Software\OperatingSystem.cs" />
+    <Compile Include="Hardware\GroupAffinity.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Hardware\WinRing0.sys" />
