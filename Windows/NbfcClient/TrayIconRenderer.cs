@@ -13,6 +13,7 @@ namespace NbfcClient
         private const double DefaultTrayIconSize = 16.0;
         private const double DefaultTrayFontSize = 16;
         private const string DefaultFontFamily = "Microsoft Sans Serif";
+        private const double PixelsPerDip = 1;
 
         #endregion
 
@@ -125,7 +126,8 @@ namespace NbfcClient
                 this.FlowDirection,
                 this.typeface,
                 this.fontSize,
-                this.foreground);
+                this.foreground,
+                PixelsPerDip);
 
             var drawingVisual = new DrawingVisual();
             var drawingContext = drawingVisual.RenderOpen();
