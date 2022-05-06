@@ -689,5 +689,45 @@ namespace LibreHardwareMonitor.Hardware
             public void Remove(string name)
             { }
         }
+ 
+        public static void InstallDriver(string directoryPath)
+        {
+            Ring0.InstallKernelDriver(directoryPath);
+        }
+
+        public static void UninstallDriver()
+        {
+            Ring0.UninstallKernelDriver();
+        }
+
+        public bool WaitIsaBusMutex(int timeout)
+        {
+            return Ring0.WaitIsaBusMutex(timeout);
+        }
+
+        public void ReleaseIsaBusMutex()
+        {
+            Ring0.ReleaseIsaBusMutex();
+        }
+
+        public void WriteIoPort(int port, byte value)
+        {
+            if (port < 0)
+            {
+                throw new ArgumentOutOfRangeException("port", "port must be greater or equal to 0");
+            }
+
+            Ring0.WriteIoPort((uint)port, value);
+        }
+
+        public byte ReadIoPort(int port)
+        {
+            if (port < 0)
+            {
+                throw new ArgumentOutOfRangeException("port", "port must be greater or equal to 0");
+            }
+
+            return Ring0.ReadIoPort((uint)port);
+        }
     }
 }
