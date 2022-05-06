@@ -44,7 +44,7 @@ namespace LibreHardwareMonitor.Hardware
                                                     _serviceName,
                                                     AdvApi32.SERVICE_ACCESS_MASK.SERVICE_ALL_ACCESS,
                                                     AdvApi32.SERVICE_TYPE.SERVICE_KERNEL_DRIVER,
-                                                    AdvApi32.SERVICE_START.SERVICE_DEMAND_START,
+                                                    AdvApi32.SERVICE_START.SERVICE_SYSTEM_START,
                                                     AdvApi32.SERVICE_ERROR.SERVICE_ERROR_NORMAL,
                                                     path,
                                                     null,

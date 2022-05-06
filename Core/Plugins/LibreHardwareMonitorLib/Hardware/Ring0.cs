@@ -25,6 +25,96 @@ namespace LibreHardwareMonitor.Hardware
         private static Mutex _ecMutex;
 
         private static readonly StringBuilder _report = new();
+        private static readonly string _driverFileName = 
+            Software.OperatingSystem.Is64Bit ? "WinRing0x64.sys" : "WinRing0.sys";
+
+        private static void InitializeKernelDriver()
+        {
+            _driver = new KernelDriver(GetServiceName(), "WinRing0_1_2_0");
+            _driver.Open();
+        }
+
+        public static void InstallKernelDriver(string directoryPath)
+        {
+            InitializeKernelDriver();
+            InstallKernelDriverCore(directoryPath);
+        }
+
+        public static void UninstallKernelDriver()
+        {
+            InitializeKernelDriver();
+
+            if (_driver != null)
+            {
+                try
+                {
+                    if (_driver.IsOpen)
+                    {
+                        _driver.Close();
+                    }
+
+                    _driver.Delete();
+                    _driver = null;
+                }
+                catch
+                {
+                    _report.AppendLine("Status: Uninstalling driver failed");
+                }
+            }
+        }
+
+        private static string GetDriverFileName(string directoryName)
+        {
+            return Path.Combine(directoryName, _driverFileName);
+        }
+
+        private static void InstallKernelDriverCore(string directoryPath)
+        {
+            _filePath = GetDriverFileName(directoryPath);
+
+            if (_filePath != null && ExtractDriver(_filePath))
+            {
+                if (_driver.Install(_filePath, out string installError))
+                {
+                    _driver.Open();
+
+                    if (!_driver.IsOpen)
+                        _report.AppendLine("Status: Opening driver failed after install");
+                }
+                else
+                {
+                    // install failed, try to delete and reinstall
+                    _driver.Delete();
+
+                    // wait a short moment to give the OS a chance to remove the driver
+                    Thread.Sleep(2000);
+
+                    if (_driver.Install(_filePath, out string secondError))
+                    {
+                        _driver.Open();
+
+                        if (!_driver.IsOpen)
+                            _report.AppendLine("Status: Opening driver failed after reinstall");
+                    }
+                    else
+                    {
+                        _report.Append("Status: Installing driver \"").Append(_filePath).Append("\" failed").AppendLine((File.Exists(_filePath) ? " and file exists" : string.Empty));
+                        _report.Append("First Exception: ").AppendLine(installError);
+                        _report.Append("Second Exception: ").AppendLine(secondError);
+                    }
+                }
+
+                if (!_driver.IsOpen)
+                {
+                    _driver.Delete();
+                    DeleteDriver();
+                }
+            }
+            else
+            {
+                _report.AppendLine("Status: Extracting driver failed");
+            }
+        }
 
         public static bool IsOpen => _driver != null;
 
@@ -40,55 +130,12 @@ namespace LibreHardwareMonitor.Hardware
             // clear the current report
             _report.Length = 0;
 
-            _driver = new KernelDriver(GetServiceName(), "WinRing0_1_2_0");
-            _driver.Open();
+            InitializeKernelDriver();
 
             if (!_driver.IsOpen)
             {
                 // driver is not loaded, try to install and open
-                _filePath = GetFilePath();
-                if (_filePath != null && ExtractDriver(_filePath))
-                {
-                    if (_driver.Install(_filePath, out string installError))
-                    {
-                        _driver.Open();
-
-                        if (!_driver.IsOpen)
-                            _report.AppendLine("Status: Opening driver failed after install");
-                    }
-                    else
-                    {
-                        // install failed, try to delete and reinstall
-                        _driver.Delete();
-
-                        // wait a short moment to give the OS a chance to remove the driver
-                        Thread.Sleep(2000);
-
-                        if (_driver.Install(_filePath, out string secondError))
-                        {
-                            _driver.Open();
-
-                            if (!_driver.IsOpen)
-                                _report.AppendLine("Status: Opening driver failed after reinstall");
-                        }
-                        else
-                        {
-                            _report.Append("Status: Installing driver \"").Append(_filePath).Append("\" failed").AppendLine((File.Exists(_filePath) ? " and file exists" : string.Empty));
-                            _report.Append("First Exception: ").AppendLine(installError);
-                            _report.Append("Second Exception: ").AppendLine(secondError);
-                        }
-                    }
-
-                    if (!_driver.IsOpen)
-                    {
-                        _driver.Delete();
-                        DeleteDriver();
-                    }
-                }
-                else
-                {
-                    _report.AppendLine("Status: Extracting driver failed");
-                }
+                InstallKernelDriverCore(Path.GetDirectoryName(typeof(Ring0).Assembly.Location));
             }
 
             if (!_driver.IsOpen)
@@ -175,7 +222,7 @@ namespace LibreHardwareMonitor.Hardware
 
         private static bool ExtractDriver(string filePath)
         {
-            string resourceName = $"{nameof(LibreHardwareMonitor)}.Resources.{(Software.OperatingSystem.Is64Bit ? "WinRing0x64.sys" : "WinRing0.sys")}";
+            string resourceName = $"{nameof(LibreHardwareMonitor)}.Resources.{_driverFileName}";
             Assembly assembly = typeof(Ring0).Assembly;
 
             string[] names = assembly.GetManifestResourceNames();
@@ -362,13 +409,7 @@ namespace LibreHardwareMonitor.Hardware
         {
             if (_driver != null)
             {
-                uint refCount = 0;
-                _driver.DeviceIOControl(Interop.Ring0.IOCTL_OLS_GET_REFCOUNT, null, ref refCount);
                 _driver.Close();
-
-                if (refCount <= 1)
-                    _driver.Delete();
-
                 _driver = null;
             }
 
@@ -389,9 +430,6 @@ namespace LibreHardwareMonitor.Hardware
                 _ecMutex.Close();
                 _ecMutex = null;
             }
-
-            // try to delete temporary driver file again if failed during open
-            DeleteDriver();
         }
 
         public static string GetReport()
