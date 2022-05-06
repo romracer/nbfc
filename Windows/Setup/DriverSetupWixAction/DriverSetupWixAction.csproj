@@ -55,9 +55,9 @@
     <Content Include="CustomAction.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\Plugins\OpenHardwareMonitor\OpenHardwareMonitorLib.csproj">
-      <Project>{b0397530-545a-471d-bb74-027ae456df1a}</Project>
-      <Name>OpenHardwareMonitorLib</Name>
+    <ProjectReference Include="..\..\..\Core\Plugins\LibreHardwareMonitorLib\LibreHardwareMonitorLib.csproj">
+      <Project>{806c5d28-45f6-4c6a-9134-73d673973d97}</Project>
+      <Name>LibreHardwareMonitorLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

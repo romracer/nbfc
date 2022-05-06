@@ -1,4 +1,4 @@
-﻿using OpenHardwareMonitor.Hardware;
+﻿using LibreHardwareMonitor.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +25,7 @@ namespace StagWare.Hardware
         private HardwareMonitor()
         {
             this.computer = new Computer();
-            this.computer.CPUEnabled = true;
+            this.computer.IsCpuEnabled = true;
             this.computer.Open();
         }
 
@@ -176,7 +176,7 @@ namespace StagWare.Hardware
 
         private void InitializeCpuSensors()
         {
-            this.cpus = GetHardware(HardwareType.CPU);
+            this.cpus = GetHardware(HardwareType.Cpu);
             this.cpuTempSensors = new ISensor[this.cpus.Length][];
             int sensorsTotal = 0;
 
@@ -196,7 +196,7 @@ namespace StagWare.Hardware
         private void InitializeGpuSensors()
         {
             var list = new List<IHardware>();
-            list.AddRange(GetHardware(HardwareType.GpuAti));
+            list.AddRange(GetHardware(HardwareType.GpuAmd));
             list.AddRange(GetHardware(HardwareType.GpuNvidia));
 
             this.gpus = list.ToArray();

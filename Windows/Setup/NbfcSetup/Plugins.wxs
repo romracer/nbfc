@@ -94,20 +94,31 @@
         </File>
       </Component>
 
-      <Component Id="Plg.OpenHardwareMonitorLib" 
-                 Guid="0AF2121F-BDA3-40AC-A719-9849AE8A0E5B">
-        <File Id="OpenHardwareMonitorLib.dll" 
-              Name="OpenHardwareMonitorLib.dll" 
+      <Component Id="Plg.LibreHardwareMonitorLib" 
+                 Guid="5FA93B58-7006-41EA-BF4A-9792139F006E">
+        <File Id="LibreHardwareMonitorLib.dll" 
+              Name="LibreHardwareMonitorLib.dll" 
               DiskId="1" 
               Vital="yes" 
               KeyPath="yes"
-              Source="$(var.StagWare.Plugins.CpuTemperatureMonitor.TargetDir)OpenHardwareMonitorLib.dll">
+              Source="$(var.StagWare.Plugins.CpuTemperatureMonitor.TargetDir)LibreHardwareMonitorLib.dll">
 
           <?if $(var.Configuration) = "Release"?>
-          <netfx:NativeImage Id="OpenHardwareMonitorLib.NativeImage" 
+          <netfx:NativeImage Id="LibreHardwareMonitorLib.NativeImage" 
                              Priority="1" 
                              Platform="all"/>
           <?endif?>
+        </File>
+      </Component>
+	
+      <Component Id="Plg.HidSharp" 
+                 Guid="01863D20-DC98-4F57-BEC1-139B0183122F">
+        <File Id="HidSharp.dll" 
+              Name="HidSharp.dll" 
+              DiskId="1" 
+              Vital="yes" 
+              KeyPath="yes"
+              Source="$(var.StagWare.Plugins.CpuTemperatureMonitor.TargetDir)HidSharp.dll">
         </File>
       </Component>
     </ComponentGroup>

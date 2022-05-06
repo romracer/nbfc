@@ -1,5 +1,5 @@
 ﻿using Microsoft.Deployment.WindowsInstaller;
-using OpenHardwareMonitor.Hardware;
+using LibreHardwareMonitor.Hardware;
 using System;
 using System.IO;
 
