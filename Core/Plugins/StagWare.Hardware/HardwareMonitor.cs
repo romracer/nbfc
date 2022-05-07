@@ -160,7 +160,7 @@ namespace StagWare.Hardware
                 {
                     string name = s.Name.ToUpper();
 
-                    if (name.Contains("PACKAGE") || name.Contains("TOTAL"))
+                    if (name.Contains("PACKAGE") || name.Contains("TDIE"))
                     {
                         return new ISensor[] { s };
                     }
