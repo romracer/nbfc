@@ -28,21 +28,21 @@ namespace LibreHardwareMonitor.Hardware
         private static readonly string _driverFileName = 
             Software.OperatingSystem.Is64Bit ? "WinRing0x64.sys" : "WinRing0.sys";
 
-        private static void InitializeKernelDriver()
+        private static void InitializeKernelDriver(string serviceName)
         {
-            _driver = new KernelDriver(GetServiceName(), "WinRing0_1_2_0");
+            _driver = new KernelDriver(serviceName, "WinRing0_1_2_0");
             _driver.Open();
         }
 
-        public static void InstallKernelDriver(string directoryPath)
+        public static void InstallKernelDriver(string serviceName, string directoryPath)
         {
-            InitializeKernelDriver();
+            InitializeKernelDriver(serviceName);
             InstallKernelDriverCore(directoryPath);
         }
 
-        public static void UninstallKernelDriver()
+        public static void UninstallKernelDriver(string serviceName)
         {
-            InitializeKernelDriver();
+            InitializeKernelDriver(serviceName);
 
             if (_driver != null)
             {
@@ -130,7 +130,7 @@ namespace LibreHardwareMonitor.Hardware
             // clear the current report
             _report.Length = 0;
 
-            InitializeKernelDriver();
+            InitializeKernelDriver(GetServiceName());
 
             if (!_driver.IsOpen)
             {

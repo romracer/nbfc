@@ -16,7 +16,7 @@ namespace DriverSetupWixAction
 
             try
             {
-                Computer.InstallDriver(session.CustomActionData[InstallDirPropertyName]);
+                Computer.InstallDriver("R0NbfcService", session.CustomActionData[InstallDirPropertyName]);
             }
             catch (Exception e)
             {
@@ -35,7 +35,7 @@ namespace DriverSetupWixAction
 
             try
             {
-                Computer.UninstallDriver();
+                Computer.UninstallDriver("R0NbfcService");
             }
             catch (Exception e)
             {

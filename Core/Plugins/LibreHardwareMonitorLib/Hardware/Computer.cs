@@ -690,14 +690,14 @@ namespace LibreHardwareMonitor.Hardware
             { }
         }
  
-        public static void InstallDriver(string directoryPath)
+        public static void InstallDriver(string serviceName, string directoryPath)
         {
-            Ring0.InstallKernelDriver(directoryPath);
+            Ring0.InstallKernelDriver(serviceName, directoryPath);
         }
 
-        public static void UninstallDriver()
+        public static void UninstallDriver(string serviceName)
         {
-            Ring0.UninstallKernelDriver();
+            Ring0.UninstallKernelDriver(serviceName);
         }
 
         public bool WaitIsaBusMutex(int timeout)
