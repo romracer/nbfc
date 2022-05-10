@@ -25,8 +25,8 @@ namespace NbfcClient.ViewModels
         private bool isServiceReadOnly;
         private bool isServiceDisabled;
         private bool isServiceEnabled;
-        private int temperature;
-        private string temperatureSourceName;
+        private int cpuTemperature;
+        private int gpuTemperature;
         private ObservableCollection<FanControllerViewModel> fanControllers;
 
         private RelayCommand selectConfigCommand;
@@ -115,16 +115,26 @@ namespace NbfcClient.ViewModels
             }
         }
 
-        public int Temperature
+        public string CpuTemperature
         {
-            get { return this.temperature; }
-            private set { this.Set(ref this.temperature, value); }
+            get 
+            {
+                if (this.cpuTemperature <= 0)
+                    return "N/A";
+                
+                return this.cpuTemperature.ToString();
+            }
         }
 
-        public string TemperatureSourceName
+        public string GpuTemperature
         {
-            get { return this.temperatureSourceName; }
-            private set { this.Set(ref this.temperatureSourceName, value); }
+            get
+            {
+                if (this.gpuTemperature <= 0)
+                    return "N/A";
+
+                return this.gpuTemperature.ToString();
+            }
         }
 
         public ObservableCollection<FanControllerViewModel> FanControllers
@@ -184,7 +194,7 @@ namespace NbfcClient.ViewModels
                 ? client.GetFanControlInfo()
                 : client.FanControlInfo;
 
-            UpdateNotifyIcon(info.Temperature);
+            UpdateNotifyIcon(info.CpuTemperature);
             UpdateProperties(info);
         }
 
@@ -199,9 +209,9 @@ namespace NbfcClient.ViewModels
             Set(ref isServiceDisabled, !info.Enabled, nameof(IsServiceDisabled));
             Set(ref isServiceReadOnly, (info.Enabled && info.ReadOnly), nameof(IsServiceReadOnly));
             Set(ref isServiceEnabled, (info.Enabled && !info.ReadOnly), nameof(IsServiceEnabled));
-            Set(ref temperature, info.Temperature, nameof(Temperature));
+            Set(ref cpuTemperature, info.CpuTemperature, nameof(CpuTemperature));
+            Set(ref gpuTemperature, info.GpuTemperature, nameof(GpuTemperature));
             Set(ref selectedConfig, info.SelectedConfig, nameof(SelectedConfig));
-            Set(ref temperatureSourceName, info.TemperatureSourceDisplayName, nameof(TemperatureSourceName));
 
             if (info.FanStatus == null)
             {

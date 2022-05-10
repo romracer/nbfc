@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using Force.DeepCloner;
+using NLog;
 using StagWare.FanControl.Configurations;
 using StagWare.FanControl.Plugins;
 using System;
@@ -45,13 +46,15 @@ namespace StagWare.FanControl
         private readonly int lockTimeout;
         private readonly FanControlConfigV2 config;
 
-        private readonly ITemperatureFilter tempFilter;
+        private readonly ITemperatureFilter cpuTempFilter;
+        private readonly ITemperatureFilter gpuTempFilter;
         private readonly ITemperatureMonitor tempMon;
         private readonly IEmbeddedController ec;
         private readonly Fan[] fans;
 
         private volatile bool readOnly;
-        private volatile float temperature;
+        private volatile float cpuTemperature;
+        private volatile float gpuTemperature;
         private volatile FanInformation[] fanInfo;
         private readonly float[] requestedSpeeds;
 
@@ -106,7 +109,8 @@ namespace StagWare.FanControl
 
             this.ec = ec;
             this.tempMon = tempMon;
-            this.tempFilter = filter;
+            this.cpuTempFilter = filter;
+            this.gpuTempFilter = filter.DeepClone();
             this.config = (FanControlConfigV2)config.Clone();
             this.pollInterval = config.EcPollInterval;
             this.requestedSpeeds = new float[config.FanConfigurations.Count];
@@ -210,9 +214,14 @@ namespace StagWare.FanControl
             }
         }
 
-        public float Temperature
+        public float CpuTemperature
         {
-            get { return this.temperature; }
+            get { return this.cpuTemperature; }
+        }
+
+        public float GpuTemperature
+        {
+            get { return this.gpuTemperature; }
         }
 
         public bool Enabled
@@ -223,21 +232,6 @@ namespace StagWare.FanControl
         public bool ReadOnly
         {
             get { return this.readOnly; }
-        }
-
-        public string TemperatureSourceDisplayName
-        {
-            get
-            {
-                if (this.tempMon == null || !this.tempMon.IsInitialized)
-                {
-                    return null;
-                }
-                else
-                {
-                    return this.tempMon.TemperatureSourceDisplayName;
-                }
-            }
         }
 
         public ReadOnlyCollection<FanInformation> FanInformation
@@ -372,14 +366,16 @@ namespace StagWare.FanControl
 
                 // We don't know which locks the plugins try to acquire internally,
                 // therefore never try to access tempMon after calling ec.AcquireLock()
-                double temp = this.tempMon.GetTemperature();
-                this.temperature = (float)this.tempFilter.FilterTemperature(temp);
+                double cpuTemp = this.tempMon.GetCpuTemperature();
+                double gpuTemp = this.tempMon.GetGpuTemperature();
+                this.cpuTemperature = (float)this.cpuTempFilter.FilterTemperature(cpuTemp);
+                this.gpuTemperature = (float)this.gpuTempFilter.FilterTemperature(gpuTemp);
 
                 if (this.ec.AcquireLock(EcTimeout))
                 {
                     try
                     {
-                        UpdateEc(this.temperature);
+                        UpdateEc(this.cpuTemperature);
                     }
                     catch (Exception e)
                     {

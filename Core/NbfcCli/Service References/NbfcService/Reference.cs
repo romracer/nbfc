@@ -35,10 +35,10 @@ namespace NbfcCli.NbfcService {
         private string SelectedConfigField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int TemperatureField;
+        private int CpuTemperatureField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string TemperatureSourceDisplayNameField;
+        private int GpuTemperatureField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -103,27 +103,27 @@ namespace NbfcCli.NbfcService {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Temperature {
+        public int CpuTemperature {
             get {
-                return this.TemperatureField;
+                return this.CpuTemperatureField;
             }
             set {
-                if ((this.TemperatureField.Equals(value) != true)) {
-                    this.TemperatureField = value;
-                    this.RaisePropertyChanged("Temperature");
+                if ((this.CpuTemperatureField.Equals(value) != true)) {
+                    this.CpuTemperatureField = value;
+                    this.RaisePropertyChanged("CpuTemperature");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string TemperatureSourceDisplayName {
+        public int GpuTemperature {
             get {
-                return this.TemperatureSourceDisplayNameField;
+                return this.GpuTemperatureField;
             }
             set {
-                if ((object.ReferenceEquals(this.TemperatureSourceDisplayNameField, value) != true)) {
-                    this.TemperatureSourceDisplayNameField = value;
-                    this.RaisePropertyChanged("TemperatureSourceDisplayName");
+                if ((this.GpuTemperatureField.Equals(value) != true)) {
+                    this.GpuTemperatureField = value;
+                    this.RaisePropertyChanged("GpuTemperature");
                 }
             }
         }

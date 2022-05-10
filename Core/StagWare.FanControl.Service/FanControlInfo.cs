@@ -15,10 +15,10 @@ namespace StagWare.FanControl.Service
         public FanStatus[] FanStatus { get; set; }
 
         [DataMember]
-        public int Temperature { get; set; }
+        public int CpuTemperature { get; set; }
 
         [DataMember]
-        public string TemperatureSourceDisplayName { get; set; }
+        public int GpuTemperature { get; set; }
 
         [DataMember]
         public string SelectedConfig { get; set; }

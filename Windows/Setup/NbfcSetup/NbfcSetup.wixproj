@@ -92,8 +92,8 @@
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\Plugins\StagWare.Plugins.CpuTemperatureMonitor\StagWare.Plugins.CpuTemperatureMonitor.csproj">
-      <Name>StagWare.Plugins.CpuTemperatureMonitor</Name>
+    <ProjectReference Include="..\..\..\Core\Plugins\StagWare.Plugins.SensorTemperatureMonitor\StagWare.Plugins.SensorTemperatureMonitor.csproj">
+      <Name>StagWare.Plugins.SensorTemperatureMonitor</Name>
       <Project>{281a8541-1845-44df-bbb9-3e0934c753a3}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>

@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StagWare.Plugins</RootNamespace>
-    <AssemblyName>StagWare.Plugins.CpuTemperatureMonitor</AssemblyName>
+    <AssemblyName>StagWare.Plugins.SensorTemperatureMonitor</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
@@ -66,7 +66,7 @@
     <Compile Include="..\..\..\Common\CommonAssemblyVersion.cs">
       <Link>Properties\CommonAssemblyVersion.cs</Link>
     </Compile>
-    <Compile Include="CpuTemperatureMonitor.cs" />
+    <Compile Include="SensorTemperatureMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

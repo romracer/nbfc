@@ -71,6 +71,15 @@
               Source="$(var.StagWare.FanControl.TargetDir)StagWare.FanControl.dll"/>
       </Component>
 
+      <Component Id="App.DeepCloner" Guid="547530AB-95E2-405E-A6BF-F91D4A150929">
+        <File Id="DeepCloner.dll"
+              Name="DeepCloner.dll"
+              DiskId="1"
+              Vital="yes"
+              KeyPath="yes"
+              Source="$(var.StagWare.FanControl.TargetDir)DeepCloner.dll"/>
+      </Component>
+
       <Component Id="App.StagWare.FanControl.Configurations" Guid="19CC0856-0909-49B2-A708-15FA70891049">
         <File Id="StagWare.FanControl.Configurations.dll" 
               Name="StagWare.FanControl.Configurations.dll" 

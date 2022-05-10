@@ -85,18 +85,19 @@ namespace StagWare.FanControl.Service
                 Enabled = false,
                 ReadOnly = SettingsService.Settings.ReadOnly,
                 SelectedConfig = this.selectedConfig,
-                Temperature = 0
+                CpuTemperature = 0,
+                GpuTemperature = 0
             };
 
             if (!this.disposed && this.fanControl != null)
             {
                 info.Enabled = this.fanControl.Enabled;
                 info.ReadOnly = this.fanControl.ReadOnly;
-                info.TemperatureSourceDisplayName = this.fanControl.TemperatureSourceDisplayName;
 
                 if (this.fanControl.Enabled)
                 {
-                    info.Temperature = (int)Math.Round(fanControl.Temperature);
+                    info.CpuTemperature = (int)Math.Round(fanControl.CpuTemperature);
+                    info.GpuTemperature = (int)Math.Round(fanControl.GpuTemperature);
 
                     ReadOnlyCollection<FanInformation> fanInfo = this.fanControl.FanInformation;
                     info.FanStatus = new FanStatus[fanInfo.Count];
