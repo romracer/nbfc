@@ -34,12 +34,12 @@ namespace StagWare.Plugins
 
         public bool AcquireLock(int timeout)
         {
-            return this.hwMon.WaitIsaBusMutex(timeout);
+            return this.hwMon.WaitEcMutex(timeout);
         }
 
         public void ReleaseLock()
         {
-            this.hwMon.ReleaseIsaBusMutex();
+            this.hwMon.ReleaseEcMutex();
         }
 
         public void Dispose()

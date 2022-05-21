@@ -700,14 +700,14 @@ namespace LibreHardwareMonitor.Hardware
             Ring0.UninstallKernelDriver(serviceName);
         }
 
-        public bool WaitIsaBusMutex(int timeout)
+        public bool WaitEcMutex(int timeout)
         {
-            return Ring0.WaitIsaBusMutex(timeout);
+            return Ring0.WaitEcMutex(timeout);
         }
 
-        public void ReleaseIsaBusMutex()
+        public void ReleaseEcMutex()
         {
-            Ring0.ReleaseIsaBusMutex();
+            Ring0.ReleaseEcMutex();
         }
 
         public void WriteIoPort(int port, byte value)

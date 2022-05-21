@@ -141,6 +141,7 @@ namespace LibreHardwareMonitor.Hardware
             if (!_driver.IsOpen)
                 _driver = null;
 
+/*
             const string isaMutexName = "Global\\Access_ISABUS.HTP.Method";
 
             try
@@ -169,12 +170,22 @@ namespace LibreHardwareMonitor.Hardware
                 catch
                 { }
             }
+*/
 
             const string pciMutexName = "Global\\Access_PCI";
 
             try
             {
+#if NETFRAMEWORK
+                //mutex permissions set to everyone to allow other software to access the hardware
+                //otherwise other monitoring software cant access
+                var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
+                var securitySettings = new MutexSecurity();
+                securitySettings.AddAccessRule(allowEveryoneRule);
+                _pciBusMutex = new Mutex(false, pciMutexName, out _, securitySettings);
+#else
                 _pciBusMutex = new Mutex(false, pciMutexName);
+#endif
             }
             catch (UnauthorizedAccessException)
             {

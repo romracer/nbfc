@@ -103,14 +103,14 @@ namespace StagWare.Hardware
 
         #region Public Methods
 
-        public bool WaitIsaBusMutex(int timeout)
+        public bool WaitEcMutex(int timeout)
         {
-            return this.computer.WaitIsaBusMutex(timeout);
+            return this.computer.WaitEcMutex(timeout);
         }
 
-        public void ReleaseIsaBusMutex()
+        public void ReleaseEcMutex()
         {
-            this.computer.ReleaseIsaBusMutex();
+            this.computer.ReleaseEcMutex();
         }
 
         public void WriteIoPort(int port, byte value)
