@@ -400,10 +400,12 @@ namespace StagWare.FanControl
 
         private void UpdateEc(float temperature)
         {
+            // Looks meaningless, disabled for now
             // Re-init if current fan speeds are off by more than 15%
             bool reInitRequired = false;
             var speeds = new float[this.fans.Length];
 
+            /*
             for (int i = 0; i < speeds.Length; i++)
             {
                 speeds[i] = this.fans[i].GetCurrentSpeed();
@@ -413,6 +415,7 @@ namespace StagWare.FanControl
                     reInitRequired = true;
                 }
             }
+            */
 
             if (!readOnly)
             {
