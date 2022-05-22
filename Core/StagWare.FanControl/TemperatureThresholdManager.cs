@@ -40,6 +40,7 @@ namespace StagWare.FanControl
 
         #region Public Methods
 
+        /*
         public void ResetCurrentThreshold(double cpuTemperature)
         {
             // Linked list must be ordered by ascending
@@ -59,22 +60,24 @@ namespace StagWare.FanControl
                 node = node.Previous;
             }
         }
+        */
 
-        public TemperatureThreshold AutoSelectThreshold(double cpuTemperature)
+        public TemperatureThreshold AutoSelectThreshold(double cpuTemperature, double gpuTemperature)
         {
             if (this.current == null)
             {
                 this.current = thresholds.First;
             }
 
-            if (cpuTemperature <= this.current.Value.DownThreshold)
+            if (cpuTemperature <= this.current.Value.CpuDownThreshold && gpuTemperature <= this.current.Value.GpuDownThreshold)
             {
                 if (this.current.Previous != null)
                 {
                     this.current = this.current.Previous;
                 }
             }
-            else if ((this.current.Next != null) && (cpuTemperature >= this.current.Next.Value.UpThreshold))
+            else if ((this.current.Next != null)
+                && (cpuTemperature >= this.current.Next.Value.CpuUpThreshold || gpuTemperature >= this.current.Next.Value.GpuUpThreshold))
             {
                 this.current = this.current.Next;
             }
@@ -92,7 +95,8 @@ namespace StagWare.FanControl
 
             while (node != null)
             {
-                if (item.UpThreshold <= node.Value.UpThreshold)
+                //we've checked the consistency in xxxx.cs
+                if ((item.CpuUpThreshold + item.GpuUpThreshold) <= (node.Value.CpuUpThreshold + node.Value.GpuUpThreshold))
                 {
                     thresholds.AddBefore(node, item);
                     return;

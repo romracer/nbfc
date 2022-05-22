@@ -129,8 +129,14 @@ namespace StagWare.FanControl
                 }
 
                 this.fanInfo[i] = new FanInformation(0, 0, true, false, cfg.FanDisplayName);
-                this.fans[i] = new Fan(this.ec, cfg, config.CriticalTemperature, config.ReadWriteWords);
+                this.fans[i] = new Fan(this.ec, cfg, config.CpuCriticalTemperature, config.GpuCriticalTemperature, config.ReadWriteWords);
                 this.requestedSpeeds[i] = AutoFanSpeedPercentage;
+
+                if (!(this.config.ReadGpuTemperature && cfg.IsGpuFan) && !cfg.IsCpuFan)
+                {
+                    this.fans[i].FanEnabled = false;
+                    cfg.FanDisplayName = cfg.FanDisplayName + "(Disabled)";
+                }
             }
         }
 
@@ -354,6 +360,7 @@ namespace StagWare.FanControl
         private void TimerCallback(object state)
         {
             bool syncRootLockTaken = false;
+            bool readGpuTemperature = this.config.ReadGpuTemperature;
 
             try
             {
@@ -371,11 +378,25 @@ namespace StagWare.FanControl
                 this.cpuTemperature = (float)this.cpuTempFilter.FilterTemperature(cpuTemp);
                 this.gpuTemperature = (float)this.gpuTempFilter.FilterTemperature(gpuTemp);
 
+                //check also for CPU?
+                if (readGpuTemperature)
+                {
+                    if (this.gpuTemperature <= 0 && !this.readOnly)
+                    {
+                        this.Start(readOnly = true);
+                        return;
+                    }
+                }
+                else
+                {
+                    this.gpuTemperature = 0;
+                }
+
                 if (this.ec.AcquireLock(EcTimeout))
                 {
                     try
                     {
-                        UpdateEc(this.cpuTemperature);
+                        UpdateEc(this.cpuTemperature, this.gpuTemperature);
                     }
                     catch (Exception e)
                     {
@@ -398,7 +419,7 @@ namespace StagWare.FanControl
             }
         }
 
-        private void UpdateEc(float temperature)
+        private void UpdateEc(float cpuTemperature, float gpuTemperature)
         {
             // Looks meaningless, disabled for now
             // Re-init if current fan speeds are off by more than 15%
@@ -426,7 +447,7 @@ namespace StagWare.FanControl
             for (int i = 0; i < this.fans.Length; i++)
             {
                 float speed = Thread.VolatileRead(ref this.requestedSpeeds[i]);
-                this.fans[i].SetTargetSpeed(speed, temperature, readOnly);
+                this.fans[i].SetTargetSpeed(speed, cpuTemperature, gpuTemperature, readOnly);
             }
 
             // Update fanInfo

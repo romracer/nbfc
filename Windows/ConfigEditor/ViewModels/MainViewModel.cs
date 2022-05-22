@@ -568,7 +568,7 @@ namespace ConfigEditor.ViewModels
         {
             var config = new FanControlConfigV2
             {
-                CriticalTemperature = viewModel.CriticalTemperature,
+                CpuCriticalTemperature = viewModel.CriticalTemperature,
                 EcPollInterval = viewModel.EcPollInterval,
                 NotebookModel = viewModel.NotebookModel,
                 Author = viewModel.Author,
@@ -625,8 +625,8 @@ namespace ConfigEditor.ViewModels
                     cfg.TemperatureThresholds = vm.TemperatureThresholds.Select(
                         x => new TemperatureThreshold
                         {
-                            DownThreshold = x.DownThreshold,
-                            UpThreshold = x.UpThreshold,
+                            CpuDownThreshold = x.DownThreshold,
+                            CpuUpThreshold = x.UpThreshold,
                             FanSpeed = x.FanSpeedPercentage
                         }).ToList();
                 }
@@ -671,7 +671,7 @@ namespace ConfigEditor.ViewModels
             else
             {
                 this.SelectedConfigName = this.configManager.SelectedConfigName;
-                this.CriticalTemperature = cfg.CriticalTemperature;
+                this.CriticalTemperature = cfg.CpuCriticalTemperature;
                 this.EcPollInterval = cfg.EcPollInterval;
                 this.NotebookModel = cfg.NotebookModel;
                 this.Author = cfg.Author;
@@ -740,8 +740,8 @@ namespace ConfigEditor.ViewModels
                     vm.TemperatureThresholds = new ObservableCollection<TemperatureThresholdViewModel>(
                         cfg.TemperatureThresholds.Select(x => new TemperatureThresholdViewModel
                         {
-                            UpThreshold = x.UpThreshold,
-                            DownThreshold = x.DownThreshold,
+                            UpThreshold = x.CpuUpThreshold,
+                            DownThreshold = x.CpuDownThreshold,
                             FanSpeedPercentage = x.FanSpeed
                         }));
                 }

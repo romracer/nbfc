@@ -10,12 +10,12 @@ namespace StagWare.FanControl.Configurations
 
         private static readonly TemperatureThreshold[] DefaultThresholds =      
         {                
-            new TemperatureThreshold(0, 0, 0),
-            new TemperatureThreshold(60, 48, 10),
-            new TemperatureThreshold(63, 55, 20),
-            new TemperatureThreshold(66, 59, 50),
-            new TemperatureThreshold(68, 63, 70),
-            new TemperatureThreshold(71, 67, 100)
+            new TemperatureThreshold(0, 0, 0, 0, 0),
+            new TemperatureThreshold(60, 48, 60, 48, 10),
+            new TemperatureThreshold(63, 55, 63, 55, 20),
+            new TemperatureThreshold(66, 59, 66, 59, 50),
+            new TemperatureThreshold(68, 63, 68, 63, 70),
+            new TemperatureThreshold(71, 67, 71, 67, 100)
         };
 
         #endregion
@@ -32,6 +32,8 @@ namespace StagWare.FanControl.Configurations
         public bool ResetRequired { get; set; }
         public int FanSpeedResetValue { get; set; }
         public string FanDisplayName { get; set; }
+        public bool IsCpuFan { get; set; }
+        public bool IsGpuFan { get; set; }
         public List<TemperatureThreshold> TemperatureThresholds { get; set; }
         public List<FanSpeedPercentageOverride> FanSpeedPercentageOverrides { get; set; }
 
@@ -53,6 +55,8 @@ namespace StagWare.FanControl.Configurations
 
         public FanConfiguration()
         {
+            this.IsCpuFan = true;
+            this.IsGpuFan = false;
             this.TemperatureThresholds = new List<TemperatureThreshold>();
             this.FanSpeedPercentageOverrides = new List<FanSpeedPercentageOverride>();
         }
@@ -75,6 +79,8 @@ namespace StagWare.FanControl.Configurations
                 MaxSpeedValueRead = this.MaxSpeedValueRead,
                 FanSpeedResetValue = this.FanSpeedResetValue,
                 FanDisplayName = this.FanDisplayName,
+                IsCpuFan = this.IsCpuFan,
+                IsGpuFan = this.IsGpuFan,
                 TemperatureThresholds = this.TemperatureThresholds
                     .Select(x => x.Clone() as TemperatureThreshold).ToList(),
                 FanSpeedPercentageOverrides = this.FanSpeedPercentageOverrides

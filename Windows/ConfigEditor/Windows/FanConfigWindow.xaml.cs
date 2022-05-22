@@ -108,8 +108,8 @@ namespace ConfigEditor.Windows
                 dataContext.TemperatureThresholds = new ObservableCollection<TemperatureThresholdViewModel>(
                     FanConfiguration.DefaultTemperatureThresholds.Select(x => new TemperatureThresholdViewModel
                     {
-                        DownThreshold = x.DownThreshold,
-                        UpThreshold = x.UpThreshold,
+                        DownThreshold = x.CpuDownThreshold,
+                        UpThreshold = x.CpuUpThreshold,
                         FanSpeedPercentage = x.FanSpeed
                     }));
             }

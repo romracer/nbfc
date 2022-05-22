@@ -21,24 +21,25 @@ namespace StagWare.FanControl.Configurations.Validation.Rules
 
             foreach (var cfg in item.FanConfigurations)
             {
-                var threshold = cfg.TemperatureThresholds?.FirstOrDefault(x => x.UpThreshold >= item.CriticalTemperature);
+                var cpuThreshold = cfg.TemperatureThresholds?.FirstOrDefault(x => x.CpuUpThreshold >= item.CpuCriticalTemperature);
 
-                if (threshold != null)
+                if (cpuThreshold != null)
                 {
                     v.Result = ValidationResult.Error;
-                    v.Reason = "At least one up-threshold is higher than or equal to the critical temperature: " + threshold.UpThreshold;
+                    v.Reason = "At least one CPU up-threshold is higher than or equal to the CPU critical temperature: " + cpuThreshold.CpuUpThreshold;
                     return v;
                 }
 
-                threshold = cfg.TemperatureThresholds?.FirstOrDefault(x => x.UpThreshold >= (item.CriticalTemperature - 5));
+                cpuThreshold = cfg.TemperatureThresholds?.FirstOrDefault(x => x.CpuUpThreshold >= (item.CpuCriticalTemperature - 5));
 
-                if (threshold != null)
+                if (cpuThreshold != null)
                 {
                     v.Result = ValidationResult.Warning;
-                    v.Reason = "At least one up-threshold is less than 5 degrees below the critical temperature: " + threshold.UpThreshold;
+                    v.Reason = "At least one CPU up-threshold is less than 5 degrees below the CPU critical temperature: " + cpuThreshold.CpuUpThreshold;
                     return v;
                 }
             }
+            //todo: check gpu if readGpuTemperature
 
             return v;
         }

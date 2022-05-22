@@ -21,10 +21,16 @@ namespace StagWare.FanControl.Configurations.Validation.Rules
 
             foreach (var t in item.FanConfigurations.SelectMany(x => x.TemperatureThresholds))
             {
-                if (t.UpThreshold < t.DownThreshold)
+                if (t.CpuUpThreshold < t.CpuDownThreshold)
                 {
                     v.Result = ValidationResult.Error;
-                    v.Reason = $"At least one up-threshold ({t.UpThreshold}) is less than its corresponding down-threshold ({t.DownThreshold})";
+                    v.Reason = $"At least one CPU up-threshold ({t.CpuUpThreshold}) is less than its corresponding CPU down-threshold ({t.CpuDownThreshold})";
+                    return v;
+                }
+                if (t.GpuUpThreshold < t.GpuDownThreshold)
+                {
+                    v.Result = ValidationResult.Error;
+                    v.Reason = $"At least one GPU up-threshold ({t.GpuUpThreshold}) is less than its corresponding GPU down-threshold ({t.GpuDownThreshold})";
                     return v;
                 }
             }

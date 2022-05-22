@@ -17,7 +17,8 @@ namespace StagWare.FanControl
         #region Private Fields
 
         private readonly bool readWriteWords;
-        private readonly int criticalTemperature;
+        private readonly int cpuCriticalTemperature;
+        private readonly int gpuCriticalTemperature;
         private readonly IEmbeddedController ec;
         private readonly FanConfiguration fanConfig;
 
@@ -47,6 +48,7 @@ namespace StagWare.FanControl
             }
         }
 
+        public bool FanEnabled { get; set; }
         public float CurrentSpeed { get; private set; }
         public bool AutoControlEnabled { get; private set; }
         public bool CriticalModeEnabled { get; private set; }
@@ -55,11 +57,20 @@ namespace StagWare.FanControl
 
         #region Constructors
 
-        public Fan(IEmbeddedController ec, FanConfiguration config, int criticalTemperature, bool readWriteWords)
+        //this is a hack for test, need to change the test later
+        public Fan(IEmbeddedController ec, FanConfiguration config, int cpuCriticalTemperature, bool readWriteWords)
+            :this(ec, config, cpuCriticalTemperature, cpuCriticalTemperature, readWriteWords)
         {
+        }
+
+        public Fan(IEmbeddedController ec, FanConfiguration config, int cpuCriticalTemperature, int gpuCriticalTemperature, bool readWriteWords)
+        {
+            this.FanEnabled = true;
+
             this.ec = ec;
             this.fanConfig = config;
-            this.criticalTemperature = criticalTemperature;
+            this.cpuCriticalTemperature = cpuCriticalTemperature;
+            this.gpuCriticalTemperature = gpuCriticalTemperature;
             this.readWriteWords = readWriteWords;
 
             this.overriddenPercentages = new Dictionary<float, FanSpeedPercentageOverride>();
@@ -83,8 +94,25 @@ namespace StagWare.FanControl
             this.maxSpeedValueReadAbs = Math.Max(this.minSpeedValueRead, this.maxSpeedValueRead);
 
             if (config.TemperatureThresholds != null
-                && config.TemperatureThresholds.Count > 0)
+                && config.TemperatureThresholds.Count > 0
+                &&(config.IsCpuFan || config.IsGpuFan))
             {
+                if (!config.IsCpuFan)
+                {
+                    foreach (TemperatureThreshold temperatureThreshold in config.TemperatureThresholds)
+                    {
+                        temperatureThreshold.CpuUpThreshold = 200;
+                        temperatureThreshold.CpuDownThreshold = 200;
+                    }
+                }
+                if (!config.IsGpuFan)
+                {
+                    foreach (TemperatureThreshold temperatureThreshold in config.TemperatureThresholds)
+                    {
+                        temperatureThreshold.GpuUpThreshold = 200;
+                        temperatureThreshold.GpuDownThreshold = 200;
+                    }
+                }
                 this.threshMan = new TemperatureThresholdManager(config.TemperatureThresholds);
             }
             else
@@ -112,14 +140,20 @@ namespace StagWare.FanControl
 
         #region Public Methods
 
-        public virtual void SetTargetSpeed(float speed, float temperature, bool readOnly)
+        //test used only, need to change the test
+        public virtual void SetTargetSpeed(float speed, float cpuTemperature, bool readOnly)
         {
-            HandleCriticalMode(temperature);
+            SetTargetSpeed(speed, cpuTemperature, 0, readOnly);
+        }
+
+        public virtual void SetTargetSpeed(float speed, float cpuTemperature, float gpuTemperature, bool readOnly)
+        {
+            HandleCriticalMode(cpuTemperature, gpuTemperature);
             this.AutoControlEnabled = (speed < 0) || (speed > 100);
 
             if (AutoControlEnabled)
             {
-                var threshold = this.threshMan.AutoSelectThreshold(temperature);
+                var threshold = this.threshMan.AutoSelectThreshold(cpuTemperature, gpuTemperature);
 
                 if (threshold != null)
                 {
@@ -133,7 +167,7 @@ namespace StagWare.FanControl
 
             speed = CriticalModeEnabled ? 100.0f : this.targetFanSpeed;
 
-            if (!readOnly)
+            if (!readOnly && FanEnabled)
             {
                 ECWriteValue(PercentageToFanSpeed(speed));
             }
@@ -230,14 +264,16 @@ namespace StagWare.FanControl
                 : this.ec.ReadByte((byte)this.fanConfig.ReadRegister);
         }
 
-        private void HandleCriticalMode(double temperature)
+        private void HandleCriticalMode(double cpuTemperature, double gpuTemperature)
         {
             if (this.CriticalModeEnabled
-                && (temperature < (this.criticalTemperature - CriticalTemperatureOffset)))
+                && (cpuTemperature < (this.cpuCriticalTemperature - CriticalTemperatureOffset))
+                && (gpuTemperature < (this.gpuCriticalTemperature - CriticalTemperatureOffset)))
             {
                 this.CriticalModeEnabled = false;
             }
-            else if (temperature > this.criticalTemperature)
+            else if (cpuTemperature > this.cpuCriticalTemperature
+                || gpuTemperature > this.gpuCriticalTemperature)
             {
                 this.CriticalModeEnabled = true;
             }

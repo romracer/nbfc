@@ -20,7 +20,10 @@ namespace StagWare.FanControl.Configurations
         public string Author { get; set; }
         public int EcPollInterval { get; set; }
         public bool ReadWriteWords { get; set; }
-        public int CriticalTemperature { get; set; }
+        //add "GPU Enabled here. If false, all GPU related elements or UIs would be hidden."
+        public bool ReadGpuTemperature { get; set; }
+        public int CpuCriticalTemperature { get; set; }
+        public int GpuCriticalTemperature { get; set; }
         public List<FanConfiguration> FanConfigurations { get; set; }
         public List<RegisterWriteConfiguration> RegisterWriteConfigurations { get; set; }
 
@@ -30,8 +33,11 @@ namespace StagWare.FanControl.Configurations
 
         public FanControlConfigV2()
         {
-            this.CriticalTemperature = 75;
+            this.CpuCriticalTemperature = 75;
+            this.GpuCriticalTemperature = 75;
             this.EcPollInterval = 3000;
+            //should be false
+            this.ReadGpuTemperature = true;
             this.FanConfigurations = new List<FanConfiguration>();
             this.RegisterWriteConfigurations = new List<RegisterWriteConfiguration>();
         }
@@ -122,7 +128,8 @@ namespace StagWare.FanControl.Configurations
                 Author = this.Author,
                 EcPollInterval = this.EcPollInterval,
                 ReadWriteWords = this.ReadWriteWords,
-                CriticalTemperature = this.CriticalTemperature,
+                CpuCriticalTemperature = this.CpuCriticalTemperature,
+                GpuCriticalTemperature = this.GpuCriticalTemperature,
 
                 FanConfigurations = this.FanConfigurations
                 .Select(x => x.Clone() as FanConfiguration).ToList(),

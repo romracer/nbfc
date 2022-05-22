@@ -6,24 +6,38 @@ namespace StagWare.FanControl.Configurations
     {
         #region Private Fields
 
-        private int upThreshold;
-        private int downThreshold;
+        private int cpuUpThreshold;
+        private int cpuDownThreshold;
+        private int gpuUpThreshold;
+        private int gpuDownThreshold;
         private float fanSpeed;
 
         #endregion
 
         #region Properties
 
-        public int UpThreshold
+        public int CpuUpThreshold
         {
-            get { return upThreshold; }
-            set { upThreshold = value; }
+            get { return cpuUpThreshold; }
+            set { cpuUpThreshold = value; }
         }
 
-        public int DownThreshold
+        public int CpuDownThreshold
         {
-            get { return downThreshold; }
-            set { downThreshold = value; }
+            get { return cpuDownThreshold; }
+            set { cpuDownThreshold = value; }
+        }
+ 
+        public int GpuUpThreshold
+        {
+            get { return gpuUpThreshold; }
+            set { gpuUpThreshold = value; }
+        }
+
+        public int GpuDownThreshold
+        {
+            get { return gpuDownThreshold; }
+            set { gpuDownThreshold = value; }
         }
 
         public float FanSpeed
@@ -57,10 +71,17 @@ namespace StagWare.FanControl.Configurations
         public TemperatureThreshold()
         { }
 
-        public TemperatureThreshold(int upThreshold, int downThreshold, float fanSpeed)
+        public TemperatureThreshold(
+            int cpuUpThreshold, 
+            int cpuDownThreshold, 
+            int gpuUpThreshold, 
+            int gpuDownThreshold, 
+            float fanSpeed)
         {
-            this.UpThreshold = upThreshold;
-            this.DownThreshold = downThreshold;
+            this.CpuUpThreshold = cpuUpThreshold;
+            this.CpuDownThreshold = cpuDownThreshold;
+            this.GpuUpThreshold = gpuUpThreshold;
+            this.GpuDownThreshold = gpuDownThreshold;
             this.FanSpeed = fanSpeed;
         }
 
@@ -70,7 +91,12 @@ namespace StagWare.FanControl.Configurations
 
         public virtual object Clone()
         {
-            return new TemperatureThreshold(this.upThreshold, this.downThreshold, this.fanSpeed);
+            return new TemperatureThreshold(
+                this.cpuUpThreshold, 
+                this.cpuDownThreshold, 
+                this.gpuUpThreshold, 
+                this.gpuDownThreshold, 
+                this.fanSpeed);
         }
 
         #endregion
