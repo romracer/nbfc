@@ -76,6 +76,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Plugins\HPShimLibrary\HpShimLibrary.csproj">
+      <Project>{195ff3c8-7762-4f51-87b6-0e91927c8971}</Project>
+      <Name>HpShimLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\StagWare.Configurations\StagWare.FanControl.Configurations.csproj">
       <Project>{eb60ffbc-51f9-42f7-b22b-2200c3f0cb64}</Project>
       <Name>StagWare.FanControl.Configurations</Name>

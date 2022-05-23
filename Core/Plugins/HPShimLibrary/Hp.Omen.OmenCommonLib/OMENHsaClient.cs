@@ -19,7 +19,7 @@ namespace Hp.Omen.OmenCommonLib
             {
                 if (_systemDesignData == null)
                 {
-                    _systemDesignData = (byte[]) CurrentApp.Properties["SystemDesignData"];
+                    _systemDesignData = (byte[])CurrentApp.Properties["SystemDesignData"];
                     if (_systemDesignData == null)
                     {
                         var inputData = new byte[4];
@@ -116,12 +116,37 @@ namespace Hp.Omen.OmenCommonLib
             return BiosWmiCmd_SetBrightness(d);
         }
 
+        public int SetFanMode(PerformanceMode mode)
+        {
+            byte[] array = new byte[2] {255, (byte)mode};
+
+            ThermalPolicyVersion thermalPolicyVersion = GetThermalPolicyVersion();
+
+            if (thermalPolicyVersion == ThermalPolicyVersion.V1)
+            {
+                switch (mode)
+                {
+                    case PerformanceMode.Default:
+                        mode = PerformanceMode.L2;
+                        break;
+                    case PerformanceMode.Performance:
+                        mode = PerformanceMode.L7;
+                        break;
+                    case PerformanceMode.Cool:
+                        mode = PerformanceMode.L4;
+                        break;
+                }
+                array[1] = (byte)mode;
+            }
+            return BiosWmiCmd_Set(131080, 26, array);
+        }
+
         public ThermalPolicyVersion GetThermalPolicyVersion()
         {
             var result = ThermalPolicyVersion.V0;
             var systemDesignData = SystemDesignData;
             if (systemDesignData != null && systemDesignData.Length != 0)
-                result = (ThermalPolicyVersion) systemDesignData[3];
+                result = (ThermalPolicyVersion)systemDesignData[3];
             if (new[]
             {
                 "8607",
@@ -134,6 +159,15 @@ namespace Hp.Omen.OmenCommonLib
                 result = ThermalPolicyVersion.V0;
             OMENEventSource.Log.Info("GetThermalPolicyVersion(), version = " + result);
             return result;
+        }
+
+        public int SetSwFanControlLevel(int cpuFanLevel, int gpuFanLevel)
+        {
+            return BiosWmiCmd_Set(131080, 46, new byte[2]
+            {
+                Convert.ToByte(cpuFanLevel),
+                Convert.ToByte(gpuFanLevel)
+            });
         }
 
         public List<byte> GetFanLevel()

@@ -53,6 +53,8 @@ namespace StagWare.FanControl
         public bool AutoControlEnabled { get; private set; }
         public bool CriticalModeEnabled { get; private set; }
 
+        public int targetSpeedHp { get; private set; }
+
         #endregion
 
         #region Constructors
@@ -171,6 +173,38 @@ namespace StagWare.FanControl
             {
                 ECWriteValue(PercentageToFanSpeed(speed));
             }
+        }
+
+        public virtual int SetHpTargetSpeed(float speed, float cpuTemperature, float gpuTemperature)
+        {
+            HandleCriticalMode(cpuTemperature, gpuTemperature);
+            this.AutoControlEnabled = (speed < 0) || (speed > 100);
+
+            if (AutoControlEnabled)
+            {
+                var threshold = this.threshMan.AutoSelectThreshold(cpuTemperature, gpuTemperature);
+
+                if (threshold != null)
+                {
+                    this.targetFanSpeed = threshold.FanSpeed;
+                }
+            }
+            else
+            {
+                this.targetFanSpeed = speed;
+            }
+
+            speed = CriticalModeEnabled ? 100.0f : this.targetFanSpeed;
+
+            this.targetSpeedHp = PercentageToFanSpeed(speed);
+
+            return this.targetSpeedHp;
+        }
+
+        public virtual float SetHpCurrentSpeed(int speed)
+        {
+            this.CurrentSpeed = FanSpeedToPercentage(speed);
+            return this.CurrentSpeed;
         }
 
         public virtual float GetCurrentSpeed()

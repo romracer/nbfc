@@ -1,8 +1,11 @@
 ﻿using Force.DeepCloner;
+using Hp.Omen.OmenCommonLib;
+using Hp.Omen.OmenCommonLib.PowerControl.Enum;
 using NLog;
 using StagWare.FanControl.Configurations;
 using StagWare.FanControl.Plugins;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -25,6 +28,7 @@ namespace StagWare.FanControl
         private const int MinPollInterval = 100;
 
 #endif
+        private OmenHsaClient hsaClient = new OmenHsaClient();
 
         public static int EcTimeout => 200;
         public static int MaxLockTimeout => 500;
@@ -57,6 +61,8 @@ namespace StagWare.FanControl
         private volatile float gpuTemperature;
         private volatile FanInformation[] fanInfo;
         private readonly float[] requestedSpeeds;
+        private readonly Fan hpCpuFan;
+        private readonly Fan hpGpuFan;
 
         #endregion
 
@@ -136,6 +142,29 @@ namespace StagWare.FanControl
                 {
                     this.fans[i].FanEnabled = false;
                     cfg.FanDisplayName = cfg.FanDisplayName + "(Disabled)";
+                }
+            }
+            if (this.fans.Length >= 2)
+            {
+                bool cpuFanLinked = false;
+                bool gpuFanLinked = false;
+                for (int i = 0; i < this.fans.Length; i++)
+                {
+                    if (this.fanInfo[i].FanDisplayName.ToUpper().Contains("CPU"))
+                    {
+                        this.hpCpuFan = this.fans[i];
+                        cpuFanLinked = true;
+                    }
+                    else if (this.fanInfo[i].FanDisplayName.ToUpper().Contains("GPU"))
+                    {
+                        this.hpGpuFan = this.fans[i];
+                        gpuFanLinked = true;
+                    }                        
+                }
+                if (!(cpuFanLinked && gpuFanLinked))
+                {
+                    this.hpCpuFan = this.fans[0];
+                    this.hpGpuFan = this.fans[1];
                 }
             }
         }
@@ -259,18 +288,26 @@ namespace StagWare.FanControl
                 throw new ObjectDisposedException(nameof(FanControl));
             }
 
+            if (!TestSetHpFanMode())
+            {
+                return;
+            }
+
             if (this.Enabled)
             {
                 if (this.readOnly != readOnly)
                 {
                     if (readOnly)
                     {
-                        ResetEc();
+                        //ResetEc();
+                        ResetHpFans();
                     }
+                    /*
                     else
                     {
                         InitializeRegisterWriteConfigurations();
                     }
+                    */
 
                     this.readOnly = readOnly;
                 }
@@ -288,6 +325,7 @@ namespace StagWare.FanControl
                     }
                 }
 
+                /*
                 if (!this.ec.IsInitialized)
                 {
                     this.ec.Initialize();
@@ -303,6 +341,7 @@ namespace StagWare.FanControl
                 {
                     InitializeRegisterWriteConfigurations();
                 }
+                */
 
                 this.readOnly = readOnly;
 
@@ -355,6 +394,77 @@ namespace StagWare.FanControl
 
         #region Private Methods
 
+        private bool TestSetHpFanMode()
+        {
+            int retry = 0;
+
+            while (true)
+            {
+                if (hsaClient.SetFanMode(PerformanceMode.L2) != -1)
+                {
+                    return true;
+                }
+                retry++;
+
+                if (retry == 3)
+                {
+                    logger.Error("Could not set Hp Fan Mode!");
+                    return false;
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
+
+
+        private void ResetHpFans()
+        {
+            TestSetHpFanMode();
+
+            if (hsaClient.SetSwFanControlLevel(255, 255) == -1)
+            {
+                logger.Error("Could not reset HP fans");
+            }
+        }
+
+        private void UpdateHpFans(float cpuTemperature, float gpuTemperature)
+        {
+            if (hsaClient.SetFanMode(PerformanceMode.L2) == -1)
+            {
+                logger.Error("Could not set Hp Fan Mode!");
+                return;
+            }
+            for (int i = 0; i < this.fans.Length; i++)
+            {
+                float speed = Thread.VolatileRead(ref this.requestedSpeeds[i]);
+                this.fans[i].SetHpTargetSpeed(speed, cpuTemperature, gpuTemperature);
+            }
+            if (!readOnly)
+            {
+                if (hsaClient.SetSwFanControlLevel(
+                    this.hpCpuFan.targetSpeedHp, this.hpGpuFan.targetSpeedHp) == -1)
+                {
+                    logger.Error("Could not update HP fans");
+                }
+            }
+            this.fanInfo = GetFanInformation();
+        }
+
+        private void GetHpFanSpeeds()
+        {
+            List<byte> fanSpeeds = hsaClient.GetFanLevel();
+
+            if (fanSpeeds.Count < 2)
+            {
+                logger.Error("Could not read HP fan speeds!");
+            }
+            else
+            {
+                this.hpCpuFan.SetHpCurrentSpeed((int)fanSpeeds[0]);
+                this.hpGpuFan.SetHpCurrentSpeed((int)fanSpeeds[1]);
+            }
+        }
+
         #region Update EC
 
         private void TimerCallback(object state)
@@ -392,6 +502,9 @@ namespace StagWare.FanControl
                     this.gpuTemperature = 0;
                 }
 
+                UpdateHpFans(this.cpuTemperature, this.gpuTemperature);
+
+                /*
                 if (this.ec.AcquireLock(EcTimeout))
                 {
                     try
@@ -409,6 +522,7 @@ namespace StagWare.FanControl
 
                     asyncOp.Post(args => OnEcUpdated(), null);
                 }
+                */
             }
             finally
             {
@@ -458,9 +572,11 @@ namespace StagWare.FanControl
         {
             var info = new FanInformation[this.fans.Length];
 
+            GetHpFanSpeeds();
+ 
             for (int i = 0; i < this.fans.Length; i++)
             {
-                this.fans[i].GetCurrentSpeed();
+                //this.fans[i].GetCurrentSpeed();
 
                 info[i] = new FanInformation(
                     this.fans[i].TargetSpeed,
@@ -493,7 +609,8 @@ namespace StagWare.FanControl
 
                 if (!readOnly)
                 {
-                    ResetEc(true);
+                    //ResetEc(true);
+                    ResetHpFans();
                 }
             }
         }

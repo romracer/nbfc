@@ -71,6 +71,15 @@
               Source="$(var.StagWare.FanControl.TargetDir)StagWare.FanControl.dll"/>
       </Component>
 
+      <Component Id="App.HpShimLibrary" Guid="B71E67D9-801F-4D78-BFD8-B535E2E80887">
+        <File Id="HpShimLibrary.dll" 
+              Name="HpShimLibrary.dll" 
+              DiskId="1" 
+              Vital="yes" 
+              KeyPath="yes"
+              Source="$(var.StagWare.FanControl.TargetDir)HpShimLibrary.dll"/>
+      </Component>
+
       <Component Id="App.DeepCloner" Guid="547530AB-95E2-405E-A6BF-F91D4A150929">
         <File Id="DeepCloner.dll"
               Name="DeepCloner.dll"

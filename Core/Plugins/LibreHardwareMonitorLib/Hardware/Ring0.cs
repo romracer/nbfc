@@ -201,6 +201,7 @@ namespace LibreHardwareMonitor.Hardware
                 { }
             }
 
+/*
             const string ecMutexName = "Global\\Access_EC";
 
             try
@@ -229,6 +230,7 @@ namespace LibreHardwareMonitor.Hardware
                 catch
                 { }
             }
+*/
         }
 
         private static bool ExtractDriver(string filePath)
