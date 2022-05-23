@@ -44,8 +44,8 @@ namespace Hp.Ohl.SysInfoCommon
             if (!string.IsNullOrEmpty(biosReleaseDate))
                 try
                 {
-                    Props[MiscPrefix + "BIOSReleaseDate"] = new DateTime(int.Parse(biosReleaseDate[..4]),
-                        int.Parse(biosReleaseDate[4..6]), int.Parse(biosReleaseDate[6..8]));
+                    Props[MiscPrefix + "BIOSReleaseDate"] = new DateTime(int.Parse(biosReleaseDate.Substring(0, 5)),
+                        int.Parse(biosReleaseDate.Substring(4, 3)), int.Parse(biosReleaseDate.Substring(6, 3)));
                 }
                 catch (Exception)
                 {
@@ -125,7 +125,7 @@ namespace Hp.Ohl.SysInfoCommon
                 if (indexL < 0) return null;
                 var indexR = oemString!.IndexOf(";", indexL, StringComparison.InvariantCulture);
                 if (indexR >= 0 && indexL + 8 < indexR)
-                    return oemString[(indexL + 8)..indexR];
+                    return oemString.Substring(indexL + 8, indexR - (indexL + 8) + 1);
                 return null;
             }
         }
@@ -140,7 +140,7 @@ namespace Hp.Ohl.SysInfoCommon
                 if (indexL < 0) return null;
                 var indexR = oemString!.IndexOf(";", indexL, StringComparison.InvariantCulture);
                 if (indexR >= 0 && indexL + 5 < indexR)
-                    return oemString[(indexL + 5)..indexR];
+                    return oemString.Substring(indexL + 5, indexR - (indexL + 5) + 1);
                 return null;
             }
         }
