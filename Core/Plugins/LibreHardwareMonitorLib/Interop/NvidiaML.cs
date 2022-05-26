@@ -139,8 +139,6 @@ namespace LibreHardwareMonitor.Interop
 
         public static bool Initialize()
         {
-            return false;
-
             lock (_syncRoot)
             {
                 if (IsAvailable)

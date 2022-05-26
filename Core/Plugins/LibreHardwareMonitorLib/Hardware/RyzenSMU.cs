@@ -289,8 +289,7 @@ namespace LibreHardwareMonitor.Hardware
 
         public bool IsPmTableLayoutDefined()
         {
-            //return _supportedPmTableVersions.ContainsKey(_pmTableVersion);
-            return false;
+            return _supportedPmTableVersions.ContainsKey(_pmTableVersion);
         }
 
         public float[] GetPmTable()
