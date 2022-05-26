@@ -359,8 +359,33 @@ namespace StagWare.FanControl
 
         private void TimerCallback(object state)
         {
-            bool syncRootLockTaken = false;
             bool readGpuTemperature = this.config.ReadGpuTemperature;
+
+            double cpuTemp = this.tempMon.GetCpuTemperature();
+            double gpuTemp = this.tempMon.GetGpuTemperature();
+            this.cpuTemperature = (float)this.cpuTempFilter.FilterTemperature(cpuTemp);
+            this.gpuTemperature = (float)this.gpuTempFilter.FilterTemperature(gpuTemp);
+
+            //check also for CPU?
+            if (readGpuTemperature)
+            {
+                if (this.gpuTemperature <= 0 && !this.readOnly)
+                {
+                    this.Start(readOnly = true);
+                    return;
+                }
+            }
+            else
+            {
+                this.gpuTemperature = 0;
+            }
+
+            UpdateEc(this.cpuTemperature, this.gpuTemperature);
+        }
+
+        private void UpdateEc(float cpuTemperature, float gpuTemperature)
+        {
+            bool syncRootLockTaken = false;
 
             try
             {
@@ -370,46 +395,57 @@ namespace StagWare.FanControl
                 {
                     return;
                 }
-
-                // We don't know which locks the plugins try to acquire internally,
-                // therefore never try to access tempMon after calling ec.AcquireLock()
-                double cpuTemp = this.tempMon.GetCpuTemperature();
-                double gpuTemp = this.tempMon.GetGpuTemperature();
-                this.cpuTemperature = (float)this.cpuTempFilter.FilterTemperature(cpuTemp);
-                this.gpuTemperature = (float)this.gpuTempFilter.FilterTemperature(gpuTemp);
-
-                //check also for CPU?
-                if (readGpuTemperature)
+                if (!this.ec.AcquireLock(EcTimeout))
                 {
-                    if (this.gpuTemperature <= 0 && !this.readOnly)
-                    {
-                        this.Start(readOnly = true);
-                        return;
-                    }
-                }
-                else
-                {
-                    this.gpuTemperature = 0;
+                    return;
                 }
 
-                if (this.ec.AcquireLock(EcTimeout))
+                try
                 {
-                    try
+                    // Looks meaningless, disabled for now
+                    // Re-init if current fan speeds are off by more than 15%
+                    bool reInitRequired = false;
+                    var speeds = new float[this.fans.Length];
+
+                    /*
+                    for (int i = 0; i < speeds.Length; i++)
                     {
-                        UpdateEc(this.cpuTemperature, this.gpuTemperature);
+                        speeds[i] = this.fans[i].GetCurrentSpeed();
+
+                        if (Math.Abs(speeds[i] - this.fans[i].TargetSpeed) > 15)
+                        {
+                            reInitRequired = true;
+                        }
                     }
-                    catch (Exception e)
+                    */
+                    if (!readOnly)
                     {
-                        logger.Error(e, "Could not update the EC");
-                    }
-                    finally
-                    {
-                        this.ec.ReleaseLock();
+                        ApplyRegisterWriteConfigurations(reInitRequired);
                     }
 
-                    asyncOp.Post(args => OnEcUpdated(), null);
+                    // Set requested fan speeds
+                    for (int i = 0; i < this.fans.Length; i++)
+                    {
+                        float speed = Thread.VolatileRead(ref this.requestedSpeeds[i]);
+                        this.fans[i].SetTargetSpeed(speed, cpuTemperature, gpuTemperature, readOnly);
+                    }
+
+                    // Update fanInfo
+                    this.fanInfo = GetFanInformation();
                 }
+
+                catch (Exception e)
+                {
+                    logger.Error(e, "Could not update the EC");
+                }
+                finally
+                {
+                    this.ec.ReleaseLock();
+                }
+
+                asyncOp.Post(args => OnEcUpdated(), null);
             }
+
             finally
             {
                 if (syncRootLockTaken)
@@ -417,41 +453,6 @@ namespace StagWare.FanControl
                     Monitor.Exit(syncRoot);
                 }
             }
-        }
-
-        private void UpdateEc(float cpuTemperature, float gpuTemperature)
-        {
-            // Looks meaningless, disabled for now
-            // Re-init if current fan speeds are off by more than 15%
-            bool reInitRequired = false;
-            var speeds = new float[this.fans.Length];
-
-            /*
-            for (int i = 0; i < speeds.Length; i++)
-            {
-                speeds[i] = this.fans[i].GetCurrentSpeed();
-
-                if (Math.Abs(speeds[i] - this.fans[i].TargetSpeed) > 15)
-                {
-                    reInitRequired = true;
-                }
-            }
-            */
-
-            if (!readOnly)
-            {
-                ApplyRegisterWriteConfigurations(reInitRequired);
-            }
-
-            // Set requested fan speeds
-            for (int i = 0; i < this.fans.Length; i++)
-            {
-                float speed = Thread.VolatileRead(ref this.requestedSpeeds[i]);
-                this.fans[i].SetTargetSpeed(speed, cpuTemperature, gpuTemperature, readOnly);
-            }
-
-            // Update fanInfo
-            this.fanInfo = GetFanInformation();
         }
 
         private FanInformation[] GetFanInformation()
