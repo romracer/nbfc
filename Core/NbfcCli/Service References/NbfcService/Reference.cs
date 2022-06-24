@@ -35,10 +35,10 @@ namespace NbfcCli.NbfcService {
         private string SelectedConfigField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int CpuTemperatureField;
+        private int TemperatureField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int GpuTemperatureField;
+        private string TemperatureSourceDisplayNameField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -103,27 +103,27 @@ namespace NbfcCli.NbfcService {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int CpuTemperature {
+        public int Temperature {
             get {
-                return this.CpuTemperatureField;
+                return this.TemperatureField;
             }
             set {
-                if ((this.CpuTemperatureField.Equals(value) != true)) {
-                    this.CpuTemperatureField = value;
-                    this.RaisePropertyChanged("CpuTemperature");
+                if ((this.TemperatureField.Equals(value) != true)) {
+                    this.TemperatureField = value;
+                    this.RaisePropertyChanged("Temperature");
                 }
             }
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int GpuTemperature {
+        public string TemperatureSourceDisplayName {
             get {
-                return this.GpuTemperatureField;
+                return this.TemperatureSourceDisplayNameField;
             }
             set {
-                if ((this.GpuTemperatureField.Equals(value) != true)) {
-                    this.GpuTemperatureField = value;
-                    this.RaisePropertyChanged("GpuTemperature");
+                if ((object.ReferenceEquals(this.TemperatureSourceDisplayNameField, value) != true)) {
+                    this.TemperatureSourceDisplayNameField = value;
+                    this.RaisePropertyChanged("TemperatureSourceDisplayName");
                 }
             }
         }

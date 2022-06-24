@@ -7,11 +7,17 @@ namespace StagWare.Plugins.Generic
 {
     [Export(typeof(ITemperatureMonitor))]
     [FanControlPluginMetadata(
-        "StagWare.Plugins.SensorTemperatureMonitor",
+        "StagWare.Plugins.CpuTemperatureMonitor",
         SupportedPlatforms.Windows | SupportedPlatforms.Unix,
         SupportedCpuArchitectures.x86 | SupportedCpuArchitectures.x64)]
-    public class SensorTemperatureMonitor : ITemperatureMonitor
+    public class CpuTemperatureMonitor : ITemperatureMonitor
     {
+        #region Constants
+
+        const string DisplayName = "CPU";
+
+        #endregion
+
         #region Private Fields
 
         private HardwareMonitor hwMon;
@@ -26,6 +32,11 @@ namespace StagWare.Plugins.Generic
             private set;
         }
 
+        public string TemperatureSourceDisplayName
+        {
+            get { return DisplayName; }
+        }
+
         public void Initialize()
         {
             if (!this.IsInitialized)
@@ -35,29 +46,12 @@ namespace StagWare.Plugins.Generic
             }
         }
 
-        public double GetCpuTemperature()
+        public double GetTemperature()
         {
             KeyValuePair<string, double>[] temps = this.hwMon.CpuTemperatures;
 
             double temperature = 0;
 
-            foreach (KeyValuePair<string, double> pair in temps)
-            {
-                temperature += pair.Value;
-            }
-
-            return temperature / temps.Length;
-        }
-
-        public double GetGpuTemperature()
-        {
-            KeyValuePair<string, double>[] temps = this.hwMon.GpuTemperatures;
-
-            if (temps.Length == 0)
-                return -273.15;
-
-            double temperature = 0;
- 
             foreach (KeyValuePair<string, double> pair in temps)
             {
                 temperature += pair.Value;

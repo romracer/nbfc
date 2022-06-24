@@ -117,7 +117,7 @@
             Orientation="Horizontal"
             HorizontalAlignment="Stretch" 
             VerticalAlignment="Top" 
-            Margin="26,66,48,0" 
+            Margin="26,69,48,0" 
             Height="18">
 
             <RadioButton 
@@ -142,44 +142,23 @@
         </StackPanel>
 
         <!--Temperature-->
-        <TextBlock 
-            Text="Sensor Temperatures:"
-            HorizontalAlignment="Left" 
-            Margin="18,90,48,0"
-            VerticalAlignment="Top"
-            FontWeight="Medium"
-            Foreground="{StaticResource HeaderBrush}"/>
         <StackPanel 
             Orientation="Horizontal" 
             Height="18" 
-            Margin="26,108,48,0" 
+            Margin="18,98,48,0" 
             VerticalAlignment="Top">
 
             <TextBlock 
                 HorizontalAlignment="Left"
-                Text="CPU:" 
+                Text="{Binding TemperatureSourceName, StringFormat=Temperature (\{0\}):}" 
                 VerticalAlignment="Top" 
-                Margin="0,0,9,0"
+                Margin="0,0,7,0"
                 FontWeight="Medium"
                 Foreground="{StaticResource HeaderBrush}"/>
 
             <TextBlock 
                 HorizontalAlignment="Left"
-                Text="{Binding CpuTemperature, StringFormat=\{0\}°C}"
-                Margin="0,0,18,0"
-                VerticalAlignment="Top"/>
-
-            <TextBlock 
-                HorizontalAlignment="Left"
-                Text="GPU(Hot Spot):" 
-                VerticalAlignment="Top" 
-                Margin="0,0,9,0"
-                FontWeight="Medium"
-                Foreground="{StaticResource HeaderBrush}"/>
-            
-            <TextBlock
-                HorizontalAlignment="Left"
-                Text="{Binding GpuTemperature, StringFormat=\{0\}°C}"
+                Text="{Binding Temperature, StringFormat=\{0\}°C}"
                 VerticalAlignment="Top"/>
         </StackPanel>
 

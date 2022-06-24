@@ -2,7 +2,7 @@
 {
     public interface ITemperatureMonitor : IFanControlPlugin
     {
-        double GetCpuTemperature();
-        double GetGpuTemperature();
+        string TemperatureSourceDisplayName { get; }
+        double GetTemperature();
     }
 }

@@ -26,7 +26,6 @@ namespace StagWare.Hardware
         {
             this.computer = new Computer();
             this.computer.IsCpuEnabled = true;
-            this.computer.IsGpuEnabled = true;
             this.computer.Open();
         }
 
@@ -80,7 +79,7 @@ namespace StagWare.Hardware
         {
             get
             {
-                if (this.gpus == null)
+                if (this.cpus == null)
                 {
                     InitializeGpuSensors();
                 }
@@ -91,7 +90,7 @@ namespace StagWare.Hardware
                 {
                     this.gpus[i].Update();
                     results[i] = new KeyValuePair<string, double>(
-                        this.gpus[i].Name,
+                        this.cpus[i].Name,
                         GetAverageTemperature(this.gpuTempSensors[i]));
                 }
 
@@ -144,6 +143,12 @@ namespace StagWare.Hardware
             return temperatureSum / count;
         }
 
+        private static ISensor[] GetGpuTemperatureSensors(IHardware gpu)
+        {
+            return gpu.Sensors.Where(
+                x => x.SensorType == SensorType.Temperature).ToArray();
+        }
+
         private static ISensor[] GetCpuTemperatureSensors(IHardware cpu)
         {
             var sensors = new List<ISensor>();
@@ -169,25 +174,6 @@ namespace StagWare.Hardware
             return sensors.ToArray();
         }
 
-        private static ISensor[] GetGpuTemperatureSensors(IHardware gpu)
-        {
-            gpu.Update();
-
-            foreach (ISensor s in gpu.Sensors)
-            {
-                if (s.SensorType == SensorType.Temperature)
-                {
-                    string name = s.Name.ToUpper();
-
-                    if (name.Contains("SPOT"))
-                    {
-                        return new ISensor[] { s };
-                    }
-                }
-            }
-            return new ISensor[] {};
-        }
-
         private void InitializeCpuSensors()
         {
             this.cpus = GetHardware(HardwareType.Cpu);
@@ -209,25 +195,25 @@ namespace StagWare.Hardware
 
         private void InitializeGpuSensors()
         {
-            var gpuAll = new List<IHardware>();
-            gpuAll.AddRange(GetHardware(HardwareType.GpuAmd));
-            gpuAll.AddRange(GetHardware(HardwareType.GpuNvidia));
+            var list = new List<IHardware>();
+            list.AddRange(GetHardware(HardwareType.GpuAmd));
+            list.AddRange(GetHardware(HardwareType.GpuNvidia));
 
-            var gpuList = new List<IHardware>();
-            var tempList = new List<ISensor[]>();
+            this.gpus = list.ToArray();
+            this.gpuTempSensors = new ISensor[this.gpus.Length][];
+            int sensorsTotal = 0;
 
-            for (int i = 0; i < gpuAll.Count; i++)
+            for (int i = 0; i < this.gpus.Length; i++)
             {
-                ISensor[] sensors = GetGpuTemperatureSensors(gpuAll[i]);
- 
-                if (sensors.Length > 0)
-                {
-                    gpuList.Add(gpuAll[i]);
-                    tempList.Add(sensors);
-                }
+                ISensor[] sensors = GetGpuTemperatureSensors(this.gpus[i]);
+                sensorsTotal += sensors.Length;
+                this.gpuTempSensors[i] = sensors;
             }
-            this.gpus = gpuList.ToArray();
-            this.gpuTempSensors = tempList.ToArray();
+
+            if (sensorsTotal <= 0)
+            {
+                throw new PlatformNotSupportedException("Failed to access GPU temperature sensors(s).");
+            }
         }
 
         private IHardware[] GetHardware(HardwareType type)

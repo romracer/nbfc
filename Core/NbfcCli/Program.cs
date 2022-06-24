@@ -237,9 +237,7 @@ namespace NbfcCli
             sb.AppendLine();
             sb.AppendFormat("Selected config name\t: {0}", info.SelectedConfig);
             sb.AppendLine();
-            sb.AppendFormat("CPU Temperature\t\t: {0}", info.CpuTemperature);
-            sb.AppendLine();
-            sb.AppendFormat("GPU Hot Spot Temperature: {0}", info.GpuTemperature);
+            sb.AppendFormat("Temperature\t\t: {0}", info.Temperature);
             sb.AppendLine();
 
             Console.WriteLine(sb.ToString());
