@@ -190,6 +190,7 @@ namespace LibreHardwareMonitor.Hardware.CPU
                             tjMax = GetTjMaxFromMsr();
                             break;
                         case 0x97: // Alder Lake (7nm)
+                        case 0x9A:
                             _microArchitecture = MicroArchitecture.AlderLake;
                             tjMax = GetTjMaxFromMsr();
                             break;
