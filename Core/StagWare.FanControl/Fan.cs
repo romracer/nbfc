@@ -10,7 +10,7 @@ namespace StagWare.FanControl
         #region Constants
 
         public const int AutoFanSpeed = 101;
-        private const int CriticalTemperatureOffset = 8;
+        private const int CriticalTemperatureOffset = 15;
 
         #endregion
 
