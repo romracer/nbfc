@@ -67,7 +67,7 @@ namespace LibreHardwareMonitor.Hardware.CPU
                                     tjMax = Floats(90 + 10);
                                     break;
                                 case 0x0D: // M0
-                                    tjMax = Floats(85 + 10);
+                                    tjMax = Floats(90 + 10);
                                     break;
                                 default:
                                     tjMax = Floats(85 + 10);
