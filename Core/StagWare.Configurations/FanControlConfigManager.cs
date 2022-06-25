@@ -141,7 +141,7 @@ namespace StagWare.FanControl.Configurations
 
             if (sysName == null)
             {
-                return null;
+                sysName = "Unknown System";
             }
 
             sysName = Regex.Replace(sysName, RemoveBracketsPattern, "").Trim();
