@@ -136,6 +136,9 @@ namespace StagWare.FanControl.Configurations
 
         private string GetDeviceModelName()
         {
+            return "Unknown System";
+
+            /*
             var biosInfo = BiosInfo.BiosInfo.Create();
             string sysName = biosInfo?.SystemName.Trim();
 
@@ -161,6 +164,7 @@ namespace StagWare.FanControl.Configurations
             }
 
             return sysName;
+            */
         }
 
         private static double GetSimilarityIndex(string modelName1, string modelName2)
